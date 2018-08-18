@@ -6,9 +6,9 @@ public class Player extends GameObject
 {
 	private int lives;
 	
-	public Player()
+	public Player(int lives)
 	{
-		lives = 5;
+		this.lives = lives;
 	}
 	
 	public void takeLife()

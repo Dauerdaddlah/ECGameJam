@@ -8,8 +8,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.WindowAdapter;
@@ -18,15 +16,13 @@ import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
-import javax.swing.SwingUtilities;
-
 public class GameDisplay
 {
 	/** frame the game is displayed on */
-	private Frame frame;
+	Frame frame;
 
 	/** Canvas inside the frame to display the game */
-	private Canvas canvas;
+	Canvas canvas;
 
 	/** {@link GraphicsEnvironment} for getting the {@link GraphicsConfiguration} */
 	private GraphicsEnvironment ge;
@@ -47,6 +43,8 @@ public class GameDisplay
 
 	/** Whether the display is currently drawing */
 	private boolean rendering;
+	
+	private InputListener inputListener;
 
 	/**
 	 * Create a gamedisplay, which drawing area is limited by the given size
@@ -68,6 +66,7 @@ public class GameDisplay
 		canvas = new Canvas();
 		closeRequested = false;
 		rendering = false;
+		inputListener = new InputListener(this);
 
 		final Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -228,14 +227,8 @@ public class GameDisplay
 		frame.dispose();
 	}
 	
-	public Point scanMouse()
+	public InputListener getInputListener()
 	{
-		double posX = MouseInfo.getPointerInfo().getLocation().x;
-		double posY = MouseInfo.getPointerInfo().getLocation().y;
-		
-		Point p = new Point((int) posX, (int) posY);
-		SwingUtilities.convertPointFromScreen(p, frame);
-		
-		return p;
+		return inputListener;
 	}
 }

@@ -8,7 +8,7 @@ public class ProjectileLetter extends Letter
 	
 	public ProjectileLetter(Vector2D target, char letter)
 	{
-		super(letter);
+		super(letter, null);
 		direction = target.getNormalized();
 		
 		move(400, 580);
@@ -23,5 +23,11 @@ public class ProjectileLetter extends Letter
 	protected Color getColor()
 	{
 		return Color.BLUE;
+	}
+	
+	@Override
+	public void update(long delta)
+	{
+		move(getDirection().getX() * delta / 5d, getDirection().getY() * delta / 5d);
 	}
 }
