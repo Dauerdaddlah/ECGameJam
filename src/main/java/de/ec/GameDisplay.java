@@ -8,6 +8,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.WindowAdapter;
@@ -15,6 +17,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
+
+import javax.swing.SwingUtilities;
 
 public class GameDisplay
 {
@@ -222,5 +226,16 @@ public class GameDisplay
 	public void destroy()
 	{
 		frame.dispose();
+	}
+	
+	public Point scanMouse()
+	{
+		double posX = MouseInfo.getPointerInfo().getLocation().x;
+		double posY = MouseInfo.getPointerInfo().getLocation().y;
+		
+		Point p = new Point((int) posX, (int) posY);
+		SwingUtilities.convertPointFromScreen(p, frame);
+		
+		return p;
 	}
 }
