@@ -48,15 +48,15 @@ public class DevGame implements Drawable
 		updateables = new ArrayList<>();
 		logics = new ArrayList<>();
 		
-		player = new Player(5);
+		player = new Player(5, WORD);
 		player.move(400, 580);
-		addGameObject(player);
-		addGameObject(new LivesDisplay(player));
 		display = new GameDisplay(800, 600);
+		addGameObject(player);
+		addGameObject(new HUD(player, display));
 		
 		logics.add(new CollisionLogic());
 		logics.add(new EndGameLogic());
-		logics.add(new LetterAttackLogic(3));
+		logics.add(new LetterAttackLogic(1));
 		
 		gameDrawable = this;
 		gameRunning = true;
@@ -137,7 +137,7 @@ public class DevGame implements Drawable
 				continue;
 			}
 			
-			if(!acceptAllLetters && !WORD.contains(letter))
+			if(!acceptAllLetters && !player.getWord().contains(letter))
 			{
 				continue;
 			}
@@ -184,10 +184,7 @@ public class DevGame implements Drawable
 	@Override
 	public void draw(Graphics2D g2d)
 	{
-		double width = g2d.getClip().getBounds2D().getWidth();
-		double height = g2d.getClip().getBounds2D().getHeight();
-
-		g2d.clearRect(0, 0, (int) width, (int) height);
+		g2d.clearRect(0, 0, display.getDrawAreaWidth(), display.getDrawAreaHeight());
 
 		drawables.forEach(g -> g.draw(g2d));
 	}
@@ -216,6 +213,8 @@ public class DevGame implements Drawable
 					{
 						removeGameObject(p);
 						removeGameObject(l);
+						
+						player.letterMet(l.getLetter());
 					}
 				}
 			}
@@ -266,14 +265,38 @@ public class DevGame implements Drawable
 		@Override
 		public void doLogic()
 		{
-			if(gameObjects.stream()
-				.filter(Letter.class::isInstance)
-				.filter(o -> !(o instanceof ProjectileLetter))
-				.count() < attackers)
+			String projectiles = gameObjects.stream()
+						.filter(Letter.class::isInstance)
+						.filter(o -> !(o instanceof ProjectileLetter))
+						.map(Letter.class::cast)
+						.map(Letter::getLetter)
+						.map(Object::toString)
+						.collect(Collectors.joining());
+			
+			if(projectiles.length() < attackers)
 			{
 				float r = random.nextFloat();
 				
-				char c = WORD.charAt(random.nextInt(WORD.length() - 1));
+				// get the word, in the order, in which the letters would be needed to come
+				// i. e. if the word is awesome and we already have awe then the word will be changed to someawe
+				String word = player.getWord();
+				word = word.substring(player.getCurWord().length());
+				word += player.getCurWord();
+				
+				// the letterPool is the String from which we choose the next letter by random
+				// the pool will contain the least-needed letter just once, the pre-least neede twice, etc
+				// i. e. if the word is someawe, the pool will be set to (order irrelevant)
+				// sssssssoooooommmmmeeeeaaawwe
+				String letterPool = "";
+				for(int i = 0; i < word.length(); ++i)
+				{
+					for(int j = word.length(); j > i; --j)
+					{
+						letterPool += word.charAt(i);
+					}
+				}
+				
+				char c = letterPool.charAt(random.nextInt(letterPool.length() - 1));
 				
 				if(r < 0.33f)
 				{
